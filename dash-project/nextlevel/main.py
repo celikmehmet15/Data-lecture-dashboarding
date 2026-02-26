@@ -13,7 +13,7 @@ navbar = dbc.NavbarSimple(
                     f"{page['name']}",
                     href=page["relative_path"]
                     )
-                for page in dash.page_registry.values()
+                for page in dash.page_registry.values() if page["relative_path"] != "/"
             ],
             nav=True,
             in_navbar=True,
@@ -28,7 +28,7 @@ navbar = dbc.NavbarSimple(
 
 app.layout = html.Div([
     navbar,
-    dash.page_container
+    dbc.Container(dash.page_container, fluid=True, className="p-4")
 ])
 
 if __name__ == '__main__':
