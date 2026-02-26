@@ -23,26 +23,41 @@ country_dropdown = dcc.Dropdown(
         {"label": country, "value": country}
         for country in emissions_df["country"].unique()
     ],
-    value="France",
+    value="Turkey",
 )
 
 
 # Create callbacks
 @callback(Output("country_co2", "figure"), Input("country_dropdown", "value"))
-def update_country_df(country):
+def update_country_co2(country):
     country_df = emissions_df[emissions_df["country"] == country]
     fig = px.line(country_df, x="year", y="co2", title=f"CO2 emissions in {country}")
     return fig
 
 
-@callback(Output("country_co2_split", "figure"), Input("country_dropdown", "value"))
-def update_country_df_split(country):
+@callback(Output("country_co2_per_capita", "figure"), Input("country_dropdown", "value"))
+def update_country_co2_pc(country):
     country_df = emissions_df[emissions_df["country"] == country]
     fig = px.line(
         country_df,
         x="year",
+        y="co2_per_capita",
+        title=f"CO2 per capita in {country}",
+    )
+    return fig
+
+@callback(Output("country_co2_split", "figure"), Input("country_dropdown", "value"))
+def update_country_co2_split(country):
+    country_df = emissions_df[emissions_df["country"] == country].copy()
+
+    # Bazı ülkelerde satırlar NaN olabiliyor; boş grafiği engeller
+    country_df = country_df.dropna(subset=["oil_co2", "gas_co2", "coal_co2"], how="all")
+
+    fig = px.line(
+        country_df,
+        x="year",
         y=["oil_co2", "gas_co2", "coal_co2"],
-        title=f"CO2 emissions in {country}",
+        title=f"CO2 emissions split in {country}",
     )
     return fig
 
@@ -53,7 +68,13 @@ app.layout = [
     dbc.Row(
         children=[
             dbc.Col(dcc.Graph(id="country_co2"), width=8),
-            dbc.Col(dcc.Graph(id="country_co2_split"), width=4),
+            dbc.Col(
+                children=[
+                    dcc.Graph(id="country_co2_split"),
+                    dcc.Graph(id="country_co2_per_capita"),
+                ],
+                width=4,
+            ),
         ]
     ),
 ]
