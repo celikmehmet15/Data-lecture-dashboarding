@@ -29,3 +29,9 @@ mlruns
 
 # Challengify - test challengification files
 *_challengify*
+
+# local data & env
+emissions.csv
+**/emissions.csv
+.venv/
+**/.venv/
